@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!-- Simulasi algoritma pengurutan -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Simulasi Algoritma Pengurutan</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="atas">
+  <div>
+    <h1>Simulasi Algoritma Pengurutan</h1>
+    <p class="subjudul">Lihat tiap langkah, baca penjelasannya, dan amati variabelnya.</p>
+  </div>
+</header>
+
+<nav class="tablist" role="tablist" aria-label="Pilih algoritma">
+  <button id="tab-bubble" role="tab" aria-selected="true" class="tab aktif">Bubble Sort</button>
+  <button id="tab-selection" role="tab" aria-selected="false" class="tab">Selection Sort</button>
+  <button id="tab-insertion" role="tab" aria-selected="false" class="tab">Insertion Sort</button>
+  <button id="tab-quick" role="tab" aria-selected="false" class="tab">Quick Sort</button>
+</nav>
+
+<section class="kartu" aria-label="Pengaturan data">
+  <h2 class="judul-kartu">Data</h2>
+  <div class="bilah-data">
+    <button id="btn-acak" class="btn">
+      <svg class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      <span>Acak</span>
+    </button>
+    <label class="kolom-kontrol">Preset
+      <select id="preset">
+        <option value="acak" selected>Acak</option>
+        <option value="urut">Sudah Urut</option>
+        <option value="terbalik">Terbalik</option>
+        <option value="hampir">Hampir Urut</option>
+        <option value="duplikat">Banyak Duplikat</option>
+      </select>
+    </label>
+    <div class="stepper" role="group" aria-label="Jumlah elemen (5 sampai 20)">
+      <span class="lbl" id="lbl-jumlah">Jumlah</span>
+      <div class="stepper-baris">
+        <button id="jml-kurang" class="btn" aria-label="Kurangi jumlah elemen">−</button>
+        <output id="jumlah-nilai" class="mono" for="jml-kurang jml-tambah">8</output>
+        <button id="jml-tambah" class="btn" aria-label="Tambah jumlah elemen">+</button>
+      </div>
+    </div>
+    <label class="kolom-kontrol tumbuh">Manual (contoh: 5, 3, 8, 1)
+      <input type="text" id="input-manual" class="mono" value="5, 3, 8, 1, 9, 2, 7, 4" inputmode="numeric" aria-describedby="pesan-galat">
+    </label>
+    <button id="btn-terapkan" class="btn primer">Terapkan</button>
+    <!-- Opsi algoritma (mis. pivot Quick Sort) -->
+    <div class="kolom-kontrol" id="blok-opsi" hidden>
+      <span class="lbl" id="label-opsi"></span>
+      <div class="segmen" id="segmen-opsi" role="group"></div>
+    </div>
+  </div>
+  <p id="pesan-galat" class="galat" hidden role="alert"></p>
+</section>
+
+<main class="tata">
+  <div class="kolom-kiri">
+    <!-- Diagram batang -->
+    <section class="kartu kartu-diagram" aria-label="Panggung batang">
+      <h2 class="judul-kartu">Diagram</h2>
+      <div id="area-batang" class="panggung"></div>
+      <div class="legenda" id="legenda" aria-label="Legenda warna"></div>
+    </section>
+
+    <section class="kartu kartu-kontrol" aria-label="Kontrol pemutaran">
+      <h2 class="judul-kartu">Kontrol</h2>
+      <div class="baris-scrub">
+        <label class="lbl" for="scrub">Jelajahi langkah</label>
+        <input type="range" id="scrub" min="0" max="0" value="0" step="1">
+        <span id="langkah-info" class="mono">0 / 0</span>
+      </div>
+      <div class="kontrol">
+        <button id="btn-reset" class="btn">
+          <svg class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span>Reset</span>
+        </button>
+        <button id="btn-back" class="btn" aria-label="Satu langkah mundur (panah kiri)">
+          <svg class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+          <span>Mundur</span>
+        </button>
+        <button id="btn-play" class="btn primer besar" aria-label="Putar animasi (Spasi)">
+          <svg id="ikon-play" class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <svg id="ikon-jeda" class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          <span id="teks-play">Putar</span>
+        </button>
+        <button id="btn-step" class="btn" aria-label="Satu langkah maju (panah kanan)">
+          <svg class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+          <span>Maju</span>
+        </button>
+        <button id="btn-end" class="btn" aria-label="Lompat ke akhir">
+          <svg class="ikon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+          <span>Akhir</span>
+        </button>
+        <label class="kecepatan">Kecepatan
+          <select id="kecepatan" aria-label="Kecepatan animasi">
+            <option value="0">1 langkah/detik</option>
+            <option value="1">2 langkah/detik</option>
+            <option value="2" selected>4 langkah/detik</option>
+            <option value="3">8 langkah/detik</option>
+            <option value="4">16 langkah/detik</option>
+          </select>
+        </label>
+      </div>
+      <p class="pintasan">Pintasan: <kbd>Spasi</kbd> putar/jeda · <kbd>→</kbd> maju · <kbd>←</kbd> mundur · <kbd>R</kbd> reset</p>
+    </section>
+  </div>
+
+  <div class="kolom-kanan">
+    <!-- Variabel, penghitung, dan penjelasan -->
+    <section class="kartu kartu-variabel" aria-label="Panel variabel">
+      <h2 class="judul-kartu">Variabel</h2>
+      <div id="panel-var" class="panel-var"></div>
+      <div id="blok-stack" hidden>
+        <h3>Tumpukan rekursi</h3>
+        <p id="panel-stack" class="stack mono"></p>
+      </div>
+    </section>
+
+    <section class="kartu kartu-penghitung" aria-label="Penghitung">
+      <h2 class="judul-kartu">Penghitung</h2>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Langkah</span><b id="stat-langkah" class="mono">0</b></div>
+        <div class="stat"><span class="stat-label">Perbandingan</span><b id="hit-banding" class="mono">0</b></div>
+        <div class="stat"><span class="stat-label">Pertukaran</span><b id="hit-tukar" class="mono">0</b></div>
+        <div class="stat"><span class="stat-label">Penulisan</span><b id="hit-tulis" class="mono">0</b></div>
+      </div>
+    </section>
+
+    <section class="kartu kartu-penjelasan" aria-label="Penjelasan langkah">
+      <h2 class="judul-kartu">Penjelasan</h2>
+      <p id="penjelasan" class="penjelasan" aria-live="polite">Siap.</p>
+      <details class="akordeon">
+        <summary>Info algoritma dan kompleksitas</summary>
+        <p id="ide-algo" class="ide"></p>
+        <p id="kapan-algo" class="kapan"></p>
+        <div class="cip" aria-label="Kompleksitas">
+          <span>Terbaik <b id="cx-terbaik" class="mono">-</b></span>
+          <span>Rata-rata <b id="cx-rata" class="mono">-</b></span>
+          <span>Terburuk <b id="cx-buruk" class="mono">-</b></span>
+          <span>Memori <b id="cx-memori" class="mono">-</b></span>
+          <span>Stabil <b id="cx-stabil" class="mono">-</b></span>
+        </div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">&copy; Asprak 17</footer>
+
+<script src="js/algorithms.js"></script>
+<script src="js/player.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
